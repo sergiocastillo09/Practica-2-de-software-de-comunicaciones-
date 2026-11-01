@@ -6,28 +6,28 @@
  * Archivo: ServidorCalculadora.java
  */
 
-/* 
- * PREGUNTA 1: ¿Qué ocurre cuando el segundo cliente intenta solicitar operaciones remotas?
- * Respuesta: El servidor atiende la solicitud del segundo cliente de manera simultánea y concurrente 
- * con el primero, procesando la operación y devolviendo el resultado correcto a su interfaz gráfica 
- * sin que ninguna de las dos instancias de cliente sufra bloqueos o interferencias.
- *
- * PREGUNTA 2: ¿Por qué ocurre eso?
- * Respuesta: Esto ocurre gracias a la arquitectura multiproceso y multihilo del modelo de transporte 
- * subyacente de gRPC (basado en Netty), el cual gestiona un pool de hilos capaz de aceptar conexiones 
- * y despachar llamadas a métodos remotos de forma asíncrona e independiente para cada canal de cliente 
- * establecido.
- */
 
 package servidor;
 
 
 import java.rmi.AlreadyBoundException;
-
-import java.rmi.RemoteException;
+import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
+
+/**
+ * PREGUNTAS 1 y 2:
+ * 
+ * ¿Qué observa si en un cliente realiza una operación y en otro cliente simultáneo se solicita visualizar el último resultado?
+ * Se observa que el segundo cliente visualiza el resultado de la operación realizada por el primer cliente, 
+ * ya que el estado del último resultado se comparte de manera global entre todos los clientes conectados.
+ * 
+ * ¿Por qué ocurre eso?
+ * Ocurre porque el objeto remoto (servidor) se instancia una única vez en el servidor RMI. Todas las peticiones 
+ * de los diferentes clientes concurren sobre esa misma instancia única y comparten los mismos atributos de clase en memoria.
+ */
 
 
 /**
@@ -45,13 +45,15 @@ public class ServidorCalculadora {
 		 try {
 		 AdaptadorOperacionesCalculadoraRMI	operaciones = new AdaptadorOperacionesCalculadoraRMI();
 		
+		 Remote remoteStub = UnicastRemoteObject.exportObject(operaciones, 0);
+		 
 		 Registry registry = LocateRegistry.createRegistry(1099);
-		 registry.rebind("Calculadora", operaciones);
+		 registry.rebind("Calculadora", remoteStub);
 		 
 		 System.out.println("Servidor RMI iniciado correctamente en el puerto 1099.");
-		 System.out.println(operaciones.toString());
+		 System.out.println("Objeto publicado: " + remoteStub.toString());
 	
-		 }catch(RemoteException e) {
+		 }catch(Exception e) {
 			 System.err.println(e.getMessage());
 			 e.printStackTrace();
 			 
