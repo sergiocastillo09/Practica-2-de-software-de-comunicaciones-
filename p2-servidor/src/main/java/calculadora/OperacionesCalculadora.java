@@ -7,6 +7,10 @@
 
 package calculadora;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+
 /** Esta clase contiene la implementación final de cada operación disponible en la calculadora.
  * Debe contener un método público de instancia por cada método de la interfaz {@link CalculadoraGUI.ICalculadora}.
  * Para evitar confusiones, se recomienda que cada uno de los métodos citados anteponga 'implementacion' al
@@ -19,6 +23,10 @@ public class OperacionesCalculadora {
 	// operación de la calculadora, siguiendo las indicaciones del enunciado.
 	private double memoria ;
     private double ultimoResultado;
+    
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReadLock readLock = lock.readLock();
+    private final WriteLock writeLock = lock.writeLock();
 	
 	
 	public OperacionesCalculadora() {
@@ -27,59 +35,132 @@ public class OperacionesCalculadora {
 		
 	}
 	
+	
+	
 	public double implementacionSumar(double operando1, double operando2) {
-		return ultimoResultado = operando1 + operando2;
-		
+		writeLock.lock();
+		try {
+			return ultimoResultado = operando1 + operando2;
+		}finally {
+			writeLock.unlock();
+		}	
 	}
 	
+	
+	
+	
     public double implementacionRestar(double operando1, double operando2) {
-    	return ultimoResultado = operando1-operando2;
-		
+    	
+    	writeLock.lock();
+		try {
+			return ultimoResultado = operando1-operando2;
+		}finally {
+			writeLock.unlock();
+		}	
 	}
+    
+    
+    
      
     public double implementacionMultiplicar(double operando1, double operando2) {
-    	return ultimoResultado = operando1*operando2;
+    	writeLock.lock();
+		try {
+			return ultimoResultado = operando1*operando2;
+		}finally {
+			writeLock.unlock();
+		}
+    	
     }
+    
+    
+    
     
     public double implementacionDividir(double operando1, double operando2) {
-    	
-    	if ( operando2 == 0) {
-    		
-    		 throw new IllegalArgumentException("Indeterminacion");
-    		
-    	}else {
-    		return ultimoResultado = operando1/operando2;
-    	}
-    		
-    }
+    	writeLock.lock();
+		try {
+			if ( operando2 == 0) {
+	    		
+	    		 throw new IllegalArgumentException("Indeterminacion");
+	    		
+	    	}else {
+	    		return ultimoResultado = operando1/operando2;
+	    	}
+		}finally {
+			writeLock.unlock();
+		}
+     }
+    
+    
+    
     
     public double  implementacionUR() {
-    	return ultimoResultado;
+    	readLock.lock();
+    	try {
+    		return ultimoResultado;
+    	}finally {
+    		readLock.unlock();
+    	}
     }
+    
+    
+    
+
     
     public void implementacionML() {
-    	memoria = 0;
+    	
+    	writeLock.lock();
+		try {
+			memoria = 0;
+		}finally {
+			writeLock.unlock();
+		}
     }
+    
+    
+    
     
     public void implementacionMA() {
-    	memoria = memoria + ultimoResultado;
+    	writeLock.lock();
+		try {
+			memoria = memoria + ultimoResultado;
+		}finally {
+			writeLock.unlock();
+		}
+    	
     }
+    
+    
+    
     
     public double  implementacionMO() {
-    	return memoria;
+    	readLock.lock();
+    	try {
+    		return memoria;
+    	}finally {
+    		readLock.unlock();
+    	}
     }
     
-   public double implementacionRaizCuadrada(double operando){
-	   
-	   if ( operando <  0) {
-   		
-  		 throw new IllegalArgumentException("Indeterminacion");
-  		
-  	}else {
-  		
-  		return ultimoResultado = Math.sqrt(operando);
-  	}
-	   
+    
+    
+    
+   public double implementacionRaizCuadrada(double operando){  
+	   writeLock.lock();
+		try {
+			 if ( operando <  0) {
+			   		
+		  		 throw new IllegalArgumentException("Indeterminacion");
+		  		
+		  	}else {
+		  		
+		  		return ultimoResultado = Math.sqrt(operando);
+		  	}
+		}finally {
+			writeLock.unlock();
+		}
     }
+   
+   
+   
 
 }

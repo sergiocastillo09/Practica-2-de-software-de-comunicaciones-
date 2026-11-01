@@ -30,6 +30,16 @@ import java.rmi.server.UnicastRemoteObject;
  */
 
 
+/* PREGUNTA 3 (OPCIONAL):
+ * ¿Cómo garantizar que cada cliente dispone de una calculadora personal usando un patrón factoría?
+		 * Para lograrlo, se implementa una Factoría Remota (patrón Factory) publicada en el registro RMI en lugar 
+		 * de compartir una única instancia de la calculadora. 
+		 * 
+		 * Cuando un cliente se conecta, invoca un método remoto de la factoría (ej. crearCalculadora()). La factoría 
+		 * se encarga de instanciar un nuevo objeto AdaptadorOperacionesCalculadoraRMI de forma independiente para ese cliente, 
+		 * lo exporta y le devuelve su propio stub único. De este modo, cada cliente obtiene una instancia exclusiva 
+		 * con su propio estado de memoria y resultados, evitando interferencias entre usuarios concurrentes.*/
+
 /**
  * Clase principal para el servidor  de la calculadora de la práctica 2.
  * <p>
